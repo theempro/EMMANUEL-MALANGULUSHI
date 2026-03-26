@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CyberShield — Personal Security Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/zxcvbn/4.4.2/zxcvbn.js"></script>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="wrap">
+
+  <!-- ── Header ── -->
+  <header>
+    <div class="logo">
+      <div class="logo-icon">CS</div>
+      <h1>Cyber<span>Shield</span></h1>
+    </div>
+    <div class="header-status">
+      <div class="pulse"></div>
+      <span id="live-time">--:--:--</span>
+      &nbsp;|&nbsp; MONITORING ACTIVE
+    </div>
+  </header>
+
+  <!-- ── Security Score Hero ── -->
+  <div class="score-hero" id="scoreHero">
+    <div class="score-ring">
+      <svg width="130" height="130" viewBox="0 0 130 130">
+        <circle class="track" cx="65" cy="65" r="56"/>
+        <circle class="fill" id="scoreArc" cx="65" cy="65" r="56"
+          stroke-dasharray="351.86" stroke-dashoffset="351.86" stroke="#00e676"/>
+      </svg>
+      <div class="score-num">
+        <span class="big" id="scoreNum" style="color: var(--green)">0</span>
+        <span class="out">/ 100</span>
+      </div>
+    </div>
+    <div class="score-info">
+      <h2>Security Score</h2>
+      <div id="statusBadge" class="status-badge" style="background: var(--green-dim); color: var(--green);">Calculating...</div>
+      <div class="score-bars">
+        <div class="bar-row">
+          <span>Password</span>
+          <div class="bar-track"><div class="bar-fill" id="barPw" style="width:0%; background: var(--green)"></div></div>
+          <span class="pct" id="pctPw">0%</span>
+        </div>
+        <div class="bar-row">
+          <span>Breaches</span>
+          <div class="bar-track"><div class="bar-fill" id="barBr" style="width:100%; background: var(--cyan)"></div></div>
+          <span class="pct" id="pctBr">—</span>
+        </div>
+        <div class="bar-row">
+          <span>Activity</span>
+          <div class="bar-track"><div class="bar-fill" id="barAc" style="width:70%; background: var(--yellow)"></div></div>
+          <span class="pct" id="pctAc">70%</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Feature Cards ── -->
+  <div class="cards">
+
+    <!-- 1. Password Analyzer -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon" style="background: rgba(0,230,118,0.1);">🔑</div>
+        <div class="card-title">Password Analyzer</div>
+      </div>
+      <div class="input-wrap">
+        <input type="password" id="pwInput" placeholder="Enter password to analyze..." autocomplete="new-password"/>
+        <button class="eye-btn" id="eyeBtn" onclick="togglePw()">👁</button>
+      </div>
+      <div class="strength-meter">
+        <div class="strength-bar" id="sb1"></div>
+        <div class="strength-bar" id="sb2"></div>
+        <div class="strength-bar" id="sb3"></div>
+        <div class="strength-bar" id="sb4"></div>
+      </div>
+      <div class="strength-label" id="strengthLabel">Enter a password to check</div>
+      <div class="checks">
+        <div class="check-item" id="chkLen"><div class="check-dot"></div>At least 12 characters</div>
+        <div class="check-item" id="chkUpper"><div class="check-dot"></div>Uppercase letters (A–Z)</div>
+        <div class="check-item" id="chkLower"><div class="check-dot"></div>Lowercase letters (a–z)</div>
+        <div class="check-item" id="chkNum"><div class="check-dot"></div>Numbers (0–9)</div>
+        <div class="check-item" id="chkSym"><div class="check-dot"></div>Symbols (!@#$...)</div>
+      </div>
+      <div class="crack-time" id="crackTime">Crack time: <strong>—</strong></div>
+    </div>
+
+    <!-- 2. Data Breach Checker -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon" style="background: rgba(255,77,77,0.1);">📧</div>
+        <div class="card-title">Data Breach Checker</div>
+      </div>
+      <div class="breach-form">
+        <input type="email" id="emailInput" placeholder="your@email.com"/>
+        <button class="btn" onclick="checkBreach()">SCAN</button>
+      </div>
+      <div class="breach-result" id="breachResult">
+        <div style="font-family: var(--mono); font-size: 11px; color: var(--muted);">
+          Enter your email to check against known data breaches.
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. Activity Monitor -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon" style="background: rgba(255,215,64,0.1);">🚨</div>
+        <div class="card-title">Activity Monitor</div>
+      </div>
+      <div class="activity-list" id="activityList"></div>
+      <div style="margin-top: 0.75rem;">
+        <button class="btn" onclick="addActivity()" style="width:100%">+ SIMULATE EVENT</button>
+      </div>
+    </div>
+
+    <!-- 4. Password Generator -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon" style="background: rgba(0,180,216,0.1);">🔐</div>
+        <div class="card-title">Password Generator</div>
+      </div>
+      <div class="gen-output">
+        <div class="gen-pw" id="genPw">—</div>
+        <button class="copy-btn" id="copyBtn" onclick="copyPw()">COPY</button>
+      </div>
+      <div class="gen-options">
+        <div class="opt-row">
+          <span>Length: <strong id="lenVal" style="color: var(--text)">16</strong></span>
+          <input type="range" min="8" max="32" value="16" id="lenRange" oninput="updateLen(this.value)"/>
+        </div>
+      </div>
+      <div class="toggle-wrap" id="toggles">
+        <button class="toggle on" data-key="upper" onclick="toggleOpt(this)">A–Z</button>
+        <button class="toggle on" data-key="lower" onclick="toggleOpt(this)">a–z</button>
+        <button class="toggle on" data-key="nums" onclick="toggleOpt(this)">0–9</button>
+        <button class="toggle on" data-key="syms" onclick="toggleOpt(this)">!@#</button>
+      </div>
+      <div style="margin-top: 1rem;">
+        <button class="btn" onclick="genPassword()" style="width:100%">↻ REGENERATE</button>
+      </div>
+    </div>
+
+    <!-- 5. 2FA Simulation -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon" style="background: rgba(0,180,216,0.1);">📱</div>
+        <div class="card-title">2FA Simulation</div>
+      </div>
+      <div class="tfa-card">
+        <div class="tfa-code" id="tfaCode">------</div>
+        <div class="tfa-timer-wrap">
+          <div class="tfa-bar-track"><div class="tfa-bar-fill" id="tfaBar" style="width:100%"></div></div>
+          <span id="tfaSec">30s</span>
+        </div>
+        <div style="font-family: var(--mono); font-size: 11px; color: var(--muted); margin-bottom: 0.75rem;">Enter code to verify:</div>
+        <div class="tfa-input-row">
+          <input class="tfa-digit" maxlength="1" oninput="tfaInput(this,0)"/>
+          <input class="tfa-digit" maxlength="1" oninput="tfaInput(this,1)"/>
+          <input class="tfa-digit" maxlength="1" oninput="tfaInput(this,2)"/>
+          <input class="tfa-digit" maxlength="1" oninput="tfaInput(this,3)"/>
+          <input class="tfa-digit" maxlength="1" oninput="tfaInput(this,4)"/>
+          <input class="tfa-digit" maxlength="1" oninput="tfaInput(this,5)"/>
+        </div>
+        <div class="tfa-msg" id="tfaMsg" style="color: var(--muted);">Type the 6-digit code above</div>
+      </div>
+    </div>
+
+    <!-- 6. Network / IP Tracker -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon" style="background: rgba(0,230,118,0.1);">🌍</div>
+        <div class="card-title">Network Info</div>
+      </div>
+      <button class="btn" onclick="fetchIP()" style="width:100%; margin-bottom: 1rem;">FETCH MY INFO</button>
+      <div class="ip-info" id="ipInfo">
+        <div class="ip-item full-col">
+          <div class="ip-label">Status</div>
+          <div class="ip-val" id="ipStatus">Click to fetch</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 7. Smart Recommendations -->
+    <div class="card" style="grid-column: 1 / -1;">
+      <div class="card-header">
+        <div class="card-icon" style="background: rgba(0,180,216,0.1);">💡</div>
+        <div class="card-title">Smart Recommendations</div>
+      </div>
+      <div class="rec-list" id="recList"></div>
+    </div>
+
+  </div><!-- /cards -->
+</div><!-- /wrap -->
+
+<script src="app.js"></script>
+</body>
+</html>
